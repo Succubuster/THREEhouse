@@ -10,10 +10,10 @@ function initWorld() {
 				  {key: 68, state: false} /* D <-> right */,
 				  {key: 81, state: false} /* Q <-> tilt left */,
 				  {key: 69, state: false} /* E <-> tilt right */];
-	//space.main;
+	space.main = null;
+	space.PoI = null;
 	space.objs = [];
-	//document.addEventListener("keydown", KD, false);
-	//document.addEventListener("keyup", KU, false);
+	
 	//space.animating = true;
 
 	space.update = function() {
@@ -32,7 +32,7 @@ function initWorld() {
 		//console.log(this.objs.length);
 		if (STAGE.controls) STAGE.controls.update();
 		for (var i = 0; i < this.objs.length; i++) {
-			this.objs[i].update(delta);
+			if (this.objs[i].update) this.objs[i].update(delta);
 		}
 	};
 	space.addObj = function(obj) {
@@ -57,59 +57,67 @@ function initWorld() {
 			return;
 		}
 		var change = false;
-		for (var i = 0; i < this.keys.length; i++) {
-			if (this.keys[i].key == event.keyCode) {
-				this.keys[i].state = true;
+		for (var i = 0; i < WORLD.keys.length; i++) {
+			if (WORLD.keys[i].key == event.keyCode) {
+				WORLD.keys[i].state = true;
 				change = true;
 				break;
 			}
 		}
 		if (change) {
 			event.preventDefault();  // Prevent keys from scrolling the page.
-			this.main.react(this.keys); // this is in main
-			if (!animating) { // (if an animation is running, no need for an extra render)
+			if (WORLD.PoI) WORLD.PoI.react();
+			if (WORLD.main) WORLD.main.react(); // this is in main
+			console.log(WORLD.main.rotation);
+			WORLD.main.lookAt(WORLD.PoI.position);
+			console.log(WORLD.main.rotation);
+			if (!WORLD.animating) { // (if an animation is running, no need for an extra render)
 				STAGE.render();
 			}
 		}
 	};
-	space.key_up = function() {
+	space.key_up = function(event) {
 		var change = false;
-		for (var i = 0; i < this.keys.length; i++) {
-			if (this.keys[i].key == event.keyCode) {
-				this.keys[i].state = false;
+		for (var i = 0; i < WORLD.keys.length; i++) {
+			if (WORLD.keys[i].key == event.keyCode) {
+				WORLD.keys[i].state = false;
 				change = true;
 				break;
 			}
 		}
 		if (change) {
 			event.preventDefault();  // Prevent keys from scrolling the page.
-			this.main.react(this.keys); // this is needed
-			if (!animating) { // (if an animation is running, no need for an extra render)
+			if (WORLD.PoI) WORLD.PoI.react();
+			if (WORLD.main) WORLD.main.react(); // this is in main
+			if (WORLD.main && WORLD.PoI) WORLD.main.lookAt(WORLD.PoI.position)
+			if (!WORLD.animating) { // (if an animation is running, no need for an extra render)
 				STAGE.render();
 			}
 		}
 	};
-
-	var cubeMaterialArray = [];
-	// order to add materials: x+,x-,y+,y-,z+,z-
-	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
-	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
-	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
-	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
-	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
-	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
-	var cubeMaterials = new THREE.MeshFaceMaterial( cubeMaterialArray );
-	// Cube parameters: width (x), height (y), depth (z), 
-	//        (optional) segments along x, segments along y, segments along z
-	var cubeGeometry = new THREE.CubeGeometry( 1000, 1000, 1000, 1, 1, 1 );
-	// using THREE.MeshFaceMaterial() in the constructor below
-	//   causes the mesh to use the materials stored in the geometry
-	var cube = new THREE.Mesh( cubeGeometry, cubeMaterials );
-	cube.position.set(-100, 1050, -50);
-	cube.update = function(d) {
-		this.rotation.y += 0.05;
-	};
-	space.addObj(cube);
+	//console.log(WORLD.key_down);
+	document.addEventListener("keydown", space.key_down, false);
+	document.addEventListener("keyup", space.key_up, false);
+	// var cubeMaterialArray = [];
+	// // order to add materials: x+,x-,y+,y-,z+,z-
+	// cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	// cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	// cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	// cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	// cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	// cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	// var cubeMaterials = new THREE.MeshFaceMaterial( cubeMaterialArray );
+	// // Cube parameters: width (x), height (y), depth (z), 
+	// //        (optional) segments along x, segments along y, segments along z
+	// var cubeGeometry = new THREE.CubeGeometry( 1000, 1000, 1000, 1, 1, 1 );
+	// // using THREE.MeshFaceMaterial() in the constructor below
+	// //   causes the mesh to use the materials stored in the geometry
+	// var cube = new THREE.Mesh( cubeGeometry, cubeMaterials );
+	// cube.position.set(-100, 1050, -50);
+	// cube.update = function(d) {
+	// 	this.rotation.y += 0.05;
+	// };
+	// space.addObj(cube);
 
 	return space; // now filled
 };
