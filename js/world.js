@@ -11,18 +11,79 @@ function initWorld() {
 				  {key: 81, state: false} /* Q <-> tilt left */,
 				  {key: 69, state: false} /* E <-> tilt right */];
 	space.main = null;
-	space.PoI = null;
-	space.objs = [];
-	
+	//space.PoI = null;
+	space.objs = []; // add to addObj like so: o = o || []
+
 	//space.animating = true;
+
+	/*space.makePlane = function(p) {
+		console.log("plane factory starting now...")
+		if (p) { // custom
+
+		} else { // default
+
+		}
+	};*/
+	space.npcs = 0;
+	space.numOfNPC = 10;
+	space.mainPlanePresent = false;
+	space.addPlane = function() { 
+		console.log("adding rand plane...");
+		//console.log("maybe use makePlane...");
+		if (this.npcs >= this. numOfNPC) return;
+		var temp = new Plane({type: "npc"}); // rand: color, path, (style?)
+		//temp.position.set(0,0,0); // change this randomly
+		this.addObj(temp);
+		this.npcs++;
+	};
+	space.addUPlane = function() { // add flocking option 
+		console.log("adding user plane...");
+		//console.log("maybe use makePlane...");
+		if (this.mainPlanePresent) return;
+		var mc = new Plane({type: "user"});
+		//mc.position.set(0,0,0);
+		this.mainPlane = mc;
+		this.addObj(mc);
+		this.mainPlanePresent = true;
+	};
+
+	space.sound = false;
+	space.planeParticles = false;
+	space.worldParticles = false;
+	space.bumpmap = false;
+	space.strDummy = "";
+
+	space.gui = new dat.GUI();
+
+	var f = space.gui.addFolder("[Obj] Add A ...");
+	f.add(space, 'addUPlane').name("RC Plane");
+	f.add(space, 'addPlane').name("Plane");
+	space.objFolder = f.addFolder("Extra Features");
+	space.objFolder.add(space, "strDummy").name("Coming Soon");
+	//space.objFolder.open();
+	f.open();
+
+	f = space.gui.addFolder("[Effects] Turn On ...");
+	//f.add(space, 'sound').name("Sounds"); // add later
+	f.add(space, 'worldParticles').name("Weather?");
+	f.add(space, 'planeParticles').name("Destroy The Ozone");
+	f.add(space, 'bumpmap').name("Terrain");
+	f.add(space, 'strDummy', ["Forest","Ocean","Cave"]).name("Surroundings");
+	space.effFolder = f.addFolder("Extra Features");
+	space.effFolder.add(space, "strDummy").name("Coming Soon");
+	//space.effFolder.open();	
+	f.open();
+
+
+	space.gui.open();
 
 	space.update = function() {
 		//console.log(WORLD.update);
 		//console.log("Am I animating: " + WORLD.animating);
 		if (WORLD.animating) {
-	        WORLD.updateForFrame(STAGE.clock.getDelta());
-	        STAGE.render();
-	        requestAnimationFrame(WORLD.update); // <- may not work
+			WORLD.updateForFrame(STAGE.clock.getDelta());
+			STAGE.render();
+			requestAnimationFrame(WORLD.update); // <- may not work
 		} else {
 			console.log("world stopped");
 		}
@@ -31,6 +92,10 @@ function initWorld() {
 		//console.log(this.objs[0].update);
 		//console.log(this.objs.length);
 		if (STAGE.controls) STAGE.controls.update();
+		if (this.main && !this.main.customControls && this.main.controls) { 
+			//console.log("controlla"); 
+			this.main.controls.update();
+		}
 		for (var i = 0; i < this.objs.length; i++) {
 			if (this.objs[i].update) this.objs[i].update(delta);
 		}
@@ -52,8 +117,11 @@ function initWorld() {
 	space.key_down = function(event) {
 		if (event.keyCode >= 49 && event.keyCode <= 57) { // 1 - 9
 			var n = event.keyCode - 49;
-			
+			//if (WORLD.PoI) WORLD.PoI.visible = false;
 			CM.switchTo(n);
+			WORLD.main = CM.mainCam;
+			//WORLD.PoI = CM.mainCam.PoI;
+			//if (WORLD.PoI) WORLD.PoI.visible = true;
 			return;
 		}
 		var change = false;
@@ -66,11 +134,27 @@ function initWorld() {
 		}
 		if (change) {
 			event.preventDefault();  // Prevent keys from scrolling the page.
-			if (WORLD.PoI) WORLD.PoI.react();
-			if (WORLD.main) WORLD.main.react(); // this is in main
-			console.log(WORLD.main.rotation);
-			WORLD.main.lookAt(WORLD.PoI.position);
-			console.log(WORLD.main.rotation);
+			/*var bstates = [false, false];
+			if (WORLD.PoI) {
+				bstates[0] = true;
+				if (WORLD.PoI.react) WORLD.PoI.react();
+			}
+			if (WORLD.main) {
+				bstates[1] = true;
+				if (WORLD.main.react) WORLD.main.react(); 
+			} 
+			//console.log(WORLD.main.rotation);
+			if (bstates[0] && bstates[1]) {
+				
+				WORLD.main.lookAt(WORLD.PoI.position);
+				//console.log(WORLD.main.rotation);
+			}
+			//console.log(WORLD.main.rotation);*/
+
+			if (WORLD.main && WORLD.main.update) {
+				WORLD.main.update();
+			}
+
 			if (!WORLD.animating) { // (if an animation is running, no need for an extra render)
 				STAGE.render();
 			}
@@ -87,9 +171,25 @@ function initWorld() {
 		}
 		if (change) {
 			event.preventDefault();  // Prevent keys from scrolling the page.
-			if (WORLD.PoI) WORLD.PoI.react();
-			if (WORLD.main) WORLD.main.react(); // this is in main
-			if (WORLD.main && WORLD.PoI) WORLD.main.lookAt(WORLD.PoI.position)
+			/*var bstates = [false, false];
+			if (WORLD.PoI) {
+				bstates[0] = true;
+				if (WORLD.PoI.react) WORLD.PoI.react();
+			}
+			if (WORLD.main) {
+				bstates[1] = true;
+				if (WORLD.main.react) WORLD.main.react(); 
+			} 
+			//console.log(WORLD.main.rotation);
+			if (bstates[0] && bstates[1]) {
+				console.log("cam move"); 
+				WORLD.main.lookAt(WORLD.PoI.position);
+			}*/
+
+			if (WORLD.main && WORLD.main.update) {
+				WORLD.main.update();
+			}
+
 			if (!WORLD.animating) { // (if an animation is running, no need for an extra render)
 				STAGE.render();
 			}

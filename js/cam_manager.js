@@ -58,6 +58,9 @@ function initCamManager() {
 		if (para.name) temp_cam.name = para.name;
 		if (para.pos) temp_cam.position.set(para.pos.x,para.pos.y,para.pos.z);
 		if (para.target) temp_cam.lookAt(para.target);
+		if (para.controls) temp_cam.controls = para.controls(temp_cam);
+		if (para.customControls) temp_cam.customControls = para.customControls;
+		if (para.react) temp_cam.react = para.react;
 		this.cams.push(temp_cam);
 		if (para.show) this.switchTo(this.cams.length-1);
 		return { cam: temp_cam, id: this.num++ }; // id may not be needed

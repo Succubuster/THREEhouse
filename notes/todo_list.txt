@@ -1,2 +1,11 @@
-Organized By Priority:
+Tasks:
 
+1. GUI -> Planes, Cam Switch, Particle Effect Trigger
+2. Minimize Camera Idea
+3. Simplify Controls
+4. Particle System -> Clouds, Rain, Smoke, Fire?
+5. Sounds (Not Really)
+
+
+Organized By Priority: 1 -> 2 -> 4 -> 5
+						 -> 3

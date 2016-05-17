@@ -120,14 +120,85 @@ function initStage() { // figure out order
 				va: platform.constants.view_angle,
 				near: platform.constants.near,
 				far: platform.constants.far,
-				pos: new THREE.Vector3( platform.constants.global_dim.x/4,
+				pos: new THREE.Vector3( platform.constants.global_dim.x/8,
 										platform.constants.global_dim.y,
-										platform.constants.global_dim.z/2.5),
+										platform.constants.global_dim.z/4),
 				target: new THREE.Vector3(platform.scene.position.x,
 											platform.scene.position.y,
 											platform.scene.position.z),
+				controls: function(obj) {return new THREE.OrbitControls(obj,platform.renderer.domElement);},
+				customControls: false,
 				show: true
 			});
+
+	CM.addCam({ type: "p",
+				name: "Ground",
+				sw: platform.constants.screen_width,
+				sh: platform.constants.screen_height,
+				va: platform.constants.view_angle,
+				near: platform.constants.near,
+				far: platform.constants.far,
+				pos: new THREE.Vector3( platform.constants.global_dim.x/8,
+										platform.constants.global_dim.y,
+										platform.constants.global_dim.z/4),
+				target: new THREE.Vector3(platform.constants.global_dim.x/2,
+											platform.scene.position.y,
+											platform.scene.position.z),
+				controls: function(obj) {return new THREE.FirstPersonControls(obj,platform.renderer.domElement);},
+				customControls: false,
+				show: false
+			});
+	/* 
+	react = function() {
+	//this.rotation.y += 0.05;
+	if (WORLD.keys[0].state){
+		// nothing here
+		console.log("space");
+		//this.rotateOnAxis(new THREE.Vector3(0,1,0), 1);
+		this.rotation.y += 0.05;
+	} else {
+		// nothing here
+	}
+	if (WORLD.keys[1].state){
+		if (this.VE.vel > 0) this.VE.vel = 0;
+		this.translateOnAxis(new THREE.Vector3(0,0,1),this.VE.deltaVel("-",-this.VE.maxSpeed,0));
+	} else {
+		//this.translateOnAxis(new THREE.Vector3(0,1,0),this.deltaVel("-",0,this.maxSpeed));
+	}
+	if (WORLD.keys[2].state){
+		if (this.VE.vel < 0) this.VE.vel = 0;
+		this.translateOnAxis(new THREE.Vector3(0,0,1),this.VE.deltaVel("+",0,this.VE.maxSpeed));
+		
+	} else {
+		//this.translateOnAxis(new THREE.Vector3(0,1,0),this.deltaVel("+",-this.maxSpeed,0));
+	}
+	if (WORLD.keys[3].state){
+		if (this.VE.vel > 0) this.VE.vel = 0;
+		this.translateOnAxis(new THREE.Vector3(1,0,0),this.VE.deltaVel("-",-this.VE.maxSpeed,0));
+	} else {
+
+	}
+	if (WORLD.keys[4].state){
+		if (this.VE.vel < 0) this.VE.vel = 0;
+		this.translateOnAxis(new THREE.Vector3(1,0,0),this.VE.deltaVel("+",0,this.VE.maxSpeed));
+	} else {
+
+	}
+	if (WORLD.keys[5].state){
+		if (this.VE.vel < 0) this.VE.vel = 0;
+		this.translateOnAxis(new THREE.Vector3(0,1,0),this.VE.deltaVel("+",0,this.VE.maxSpeed));
+	} else {
+
+	}
+	if (WORLD.keys[6].state){
+		if (this.VE.vel > 0) this.VE.vel = 0;
+		this.translateOnAxis(new THREE.Vector3(0,1,0),this.VE.deltaVel("-",-this.VE.maxSpeed,0));
+	} else {
+
+	}
+	this.boundMe();
+}
+*/
 	//platform.controls = new THREE.FirstPersonControls( CM.mainCam );
 	THREEx.WindowResize(platform.renderer, CM.mainCam); // move down // LINK
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
